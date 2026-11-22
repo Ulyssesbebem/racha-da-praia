@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B7A75">
+<meta name="description" content="Divide os gastos do grupo e mostra quem paga quanto para quem via Pix.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Racha">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Racha da Praia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app de uma coluna (máx. 560px), cabeçalho fixo no topo, barra de abas fixa embaixo, botão + flutuante; formulários abrem em painel deslizante. */
+:root{
+  --bg:#EEF4F3; --surface:#FFFFFF; --surface-2:#F6FAF9; --ink:#0E2A33; --muted:#5A6F76; --line:#D7E2E1;
+  --accent:#0B7A75; --accent-ink:#FFFFFF; --accent-soft:#D8EFEC;
+  --pos:#1E8A4B; --pos-soft:#DDF3E5; --neg:#C9472C; --neg-soft:#FBE3DC;
+  --sand:#F1E4C8; --sand-ink:#6B5523;
+  --shadow:0 1px 2px rgba(14,42,51,.06),0 8px 24px rgba(14,42,51,.08);
+  --av1:#0B7A75; --av2:#C9472C; --av3:#3D5AA8; --av4:#B7791F; --av5:#7A4BA8; --av6:#2F855A; --av7:#B83280; --av8:#2C7A9B;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A181C; --surface:#11252B; --surface-2:#0E1F24; --ink:#E4EFEE; --muted:#8EA5AA; --line:#1F3940;
+  --accent:#3EC3B8; --accent-ink:#04211F; --accent-soft:#143A3A;
+  --pos:#55C887; --pos-soft:#123526; --neg:#F27E62; --neg-soft:#3A1C15;
+  --sand:#2E2A1E; --sand-ink:#E3CF9F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --av1:#3EC3B8; --av2:#F27E62; --av3:#8AA4F0; --av4:#E7B455; --av5:#B58AE6; --av6:#5DCB8F; --av7:#EE7EC0; --av8:#64B9DA;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0A181C; --surface:#11252B; --surface-2:#0E1F24; --ink:#E4EFEE; --muted:#8EA5AA; --line:#1F3940;
+  --accent:#3EC3B8; --accent-ink:#04211F; --accent-soft:#143A3A;
+  --pos:#55C887; --pos-soft:#123526; --neg:#F27E62; --neg-soft:#3A1C15;
+  --sand:#2E2A1E; --sand-ink:#E3CF9F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --av1:#3EC3B8; --av2:#F27E62; --av3:#8AA4F0; --av4:#E7B455; --av5:#B58AE6; --av6:#5DCB8F; --av7:#EE7EC0; --av8:#64B9DA;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.brand{flex:1;min-width:0}
+.brand button{background:none;border:0;padding:0;text-align:left;max-width:100%}
+.brand h1{font-size:1.25rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;color:var(--muted);font-size:.8rem}
+.sync{font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--pos);display:inline-block}
+.sync.local i{background:var(--sand-ink)}
+.sync.wait i{background:var(--muted)}
+
+main{padding-block:16px 140px}
+main .wrap{display:flex;flex-direction:column;gap:18px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.section-h h2{font-size:1.05rem;font-weight:800}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.pad{padding:16px}
+
+/* Total hero */
+.hero{background:var(--accent);color:var(--accent-ink);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;bottom:-60px;width:220px;height:220px;border-radius:50%;
+  background:repeating-radial-gradient(circle at center, transparent 0 14px, color-mix(in srgb, var(--accent-ink) 12%, transparent) 14px 16px);pointer-events:none}
+.hero .label{color:inherit;opacity:.8}
+.hero .big{font-family:var(--display);font-size:2.6rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.hero .row{display:flex;gap:20px;flex-wrap:wrap;position:relative;z-index:1}
+.hero .row div{display:flex;flex-direction:column}
+.hero .row b{font-size:1.05rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:12px 16px;font-weight:600;text-decoration:none;color:var(--ink);min-height:46px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.close{background:var(--ink);color:var(--bg);border-color:var(--ink);font-family:var(--display);font-weight:800;letter-spacing:.04em;font-size:1.05rem;min-height:56px}
+.hero .btn.close{background:var(--accent-ink);color:var(--accent);border-color:var(--accent-ink);position:relative;z-index:1}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--neg);border-color:color-mix(in srgb,var(--neg) 40%,var(--line))}
+.btn.danger.armed{background:var(--neg);color:#fff;border-color:var(--neg)}
+.btn.wa{background:#1F9D55;border-color:#1F9D55;color:#fff}
+.btn.sm{padding:8px 12px;min-height:38px;font-size:.88rem;border-radius:10px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btns .btn{flex:1 1 140px}
+
+/* Avatars */
+.av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.85rem;color:var(--surface);background:var(--avc,var(--av1))}
+.av.sm{width:26px;height:26px;font-size:.7rem}
+.av.lg{width:52px;height:52px;font-size:1.1rem}
+
+/* Balance bars */
+.bars{display:flex;flex-direction:column}
+.bar-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) auto;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;width:100%}
+.bar-row:first-child{border-top:0}
+.bar-name{display:flex;align-items:center;gap:8px;min-width:0}
+.bar-name span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.track{position:relative;height:10px;background:var(--surface-2);border-radius:5px}
+.track::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line)}
+.fill{position:absolute;top:0;bottom:0;border-radius:5px}
+.fill.pos{left:50%;background:var(--pos)}
+.fill.neg{right:50%;background:var(--neg)}
+.amt{font-weight:700;text-align:right;min-width:88px}
+.pos-t{color:var(--pos)} .neg-t{color:var(--neg)}
+
+/* Expense list */
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.item:first-child{border-top:0}
+.item .grow{flex:1;min-width:0}
+.item .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .s{font-size:.82rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .v{font-weight:700;text-align:right}
+.item .v small{display:block;font-weight:500;color:var(--muted);font-size:.75rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--sand);color:var(--sand-ink)}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:1.15rem;margin-top:2px}
+.stat.wide{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+.stat.wide b{font-family:var(--display);font-size:1.5rem}
+
+/* Transfers */
+.tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px;border-top:1px solid var(--line)}
+.tr:first-child{border-top:0}
+.tr .who{display:flex;flex-direction:column;min-width:0}
+.tr .who b{font-weight:700}
+.tr .who .s{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere}
+.tr .val{font-family:var(--display);font-weight:800;font-size:1.2rem;text-align:right}
+.tr.done{opacity:.55}
+.tr.done .val{text-decoration:line-through}
+.check{width:28px;height:28px;border-radius:8px;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0}
+.check.on{background:var(--pos);border-color:var(--pos);color:#fff}
+.arrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* Forms */
+.field{display:flex;flex-direction:column;gap:6px}
+.input{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:16px;min-height:48px}
+.input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:var(--surface)}
+.money{font-family:var(--display);font-size:1.9rem;font-weight:800;padding:10px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:8px 12px 8px 8px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;min-height:42px}
+.chip.text{padding:6px 12px;min-height:34px;font-size:.85rem;font-weight:500;background:var(--surface-2)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.chip.on .av{box-shadow:0 0 0 2px var(--accent)}
+.row-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0;font-size:.88rem}
+.preview{background:var(--sand);color:var(--sand-ink);border-radius:12px;padding:12px 14px;font-size:.92rem}
+.preview b{color:var(--ink)}
+.err{color:var(--neg);font-size:.88rem;font-weight:600}
+.payrow{display:grid;grid-template-columns:auto minmax(0,1fr) 130px;gap:10px;align-items:center}
+.payrow .input{min-height:42px;padding:8px 12px}
+
+/* Tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;text-decoration:none;color:var(--muted);font-size:.72rem;font-weight:600}
+nav.tabs a svg{width:22px;height:22px}
+nav.tabs a.on{color:var(--accent)}
+.fab{position:fixed;z-index:21;right:max(18px,calc(50% - 262px), calc(env(safe-area-inset-right,0px) + 18px));bottom:calc(78px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:18px;border:0;background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow);display:grid;place-items:center}
+.fab svg{width:28px;height:28px}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(5,20,24,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:calc(100% - env(safe-area-inset-top,0px) - 24px);overflow:auto;border-radius:22px 22px 0 0;box-shadow:var(--shadow);
+  padding-block:8px calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;animation:up .22s ease-out}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 0}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet-h h2{font-size:1.3rem;font-weight:800}
+.x{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+
+.empty{text-align:center;padding:28px 18px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.empty h3{font-size:1.15rem}
+.empty p{margin:0;color:var(--muted);max-width:36ch}
+.note{font-size:.82rem;color:var(--muted)}
+.msgbox{white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.85rem;max-height:220px;overflow:auto}
+textarea.input{min-height:200px;font-size:.85rem}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.pill-count{font-size:.8rem;background:var(--accent-soft);color:var(--ink);padding:3px 10px;border-radius:99px;font-weight:600}
+.person-card{display:flex;flex-direction:column}
+.pc-row{display:flex;gap:12px;align-items:center;padding:14px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.pc-row:first-child{border-top:0}
+.pc-row .grow{flex:1;min-width:0}
+.pc-row .grow b{display:block}
+.pc-row .grow .s{font-size:.8rem;color:var(--muted)}
+.state{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.state.pos{background:var(--pos-soft);color:var(--pos)}
+.state.neg{background:var(--neg-soft);color:var(--neg)}
+.state.zero{background:var(--surface-2);color:var(--muted)}
+.addrow{display:flex;gap:8px}
+.addrow .input{flex:1;min-width:0}
+.compare{display:flex;align-items:center;gap:10px;font-size:.88rem}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><button id="titleBtn" data-act="edit-title" aria-label="Editar nome do dia"><h1 id="title">Racha da Praia</h1><small id="subtitle" class="num">Carregando…</small></button></div>
+    <div id="sync" class="sync wait"><i></i><span>Conectando</span></div>
+  </div>
+</header>
+
+<main><div class="wrap" id="view"></div></main>
+
+<button class="fab" id="fab" data-act="new-expense" aria-label="Adicionar gasto">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<nav class="tabs" aria-label="Telas">
+  <div class="wrap">
+    <a href="#inicio" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</a>
+    <a href="#gastos" data-tab="gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Gastos</a>
+    <a href="#pessoas" data-tab="pessoas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5c2.4.2 4 1.8 4.6 4.5"/></svg>Pessoas</a>
+    <a href="#fechamento" data-tab="fechamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h13l-3-3M20 17H7l3 3"/></svg>Fechamento</a>
+  </div>
+</nav>
+
+<div id="sheetRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== Estado e persistência ===================== */
+const S = { people: [], expenses: [], meta: { title: "Dia de praia", done: {} }, mode: "loading", loaded: { people:false, expenses:false, meta:false } };
+let db = null;
+const LS_KEY = "racha-praia-v1";
+
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const d = JSON.parse(raw); S.people = d.people||[]; S.expenses = d.expenses||[]; S.meta = Object.assign({title:"Dia de praia",done:{}}, d.meta||{}); }
+  }catch(e){}
+}
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({people:S.people, expenses:S.expenses, meta:S.meta})); }catch(e){} }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function upsert(arr, obj){ const i = arr.findIndex(x=>x.id===obj.id); if(i>=0) arr[i]=obj; else arr.push(obj); }
+function sortAll(){
+  S.people.sort((a,b)=>(a.order||0)-(b.order||0));
+  S.expenses.sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+
+async function dbWrite(fn){
+  try{ await fn(); }
+  catch(e){
+    if(e && e.code==="unavailable"){ await new Promise(r=>setTimeout(r, 500+Math.random()*800)); try{ await fn(); return; }catch(e2){ e=e2; } }
+    toast(e && e.code==="quota_exceeded" ? "Limite de armazenamento atingido. Apague gastos antigos." : "Não foi possível salvar. Verifique a conexão e tente de novo.");
+    throw e;
+  }
+}
+const store = {
+  async putPerson(p){
+    if(db) return dbWrite(()=>db.doc("people/"+p.id).set(p));
+    upsert(S.people,p); sortAll(); saveLocal(); render();
+  },
+  async delPerson(id){
+    if(db) return dbWrite(()=>db.doc("people/"+id).delete());
+    S.people = S.people.filter(p=>p.id!==id); saveLocal(); render();
+  },
+  async putExpense(e){
+    if(db) return dbWrite(()=>db.doc("expenses/"+e.id).set(e));
+    upsert(S.expenses,e); sortAll(); saveLocal(); render();
+  },
+  async delExpense(id){
+    if(db) return dbWrite(()=>db.doc("expenses/"+id).delete());
+    S.expenses = S.expenses.filter(x=>x.id!==id); saveLocal(); render();
+  },
+  async putMeta(m){
+    if(db) return dbWrite(()=>db.doc("meta/main").set(m));
+    S.meta = m; saveLocal(); render();
+  }
+};
+
+/* ===================== Dinheiro (sempre em centavos inteiros) ===================== */
+const FMT = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+const brl = c => FMT.format((c||0)/100).replace(/ /g," ");
+function parseMoney(str){
+  if(str==null) return NaN;
+  let s = String(str).replace(/[R$\s]/g,"");
+  if(!s) return NaN;
+  if(s.includes(",")){ s = s.replace(/\./g,"").replace(",","."); }
+  else if((s.match(/\./g)||[]).length>1){ s = s.replace(/\./g,""); }
+  if(!/^\d*\.?\d*$/.test(s)) return NaN;
+  const v = Math.round(parseFloat(s)*100);
+  return isFinite(v) ? v : NaN;
+}
+function centsToInput(c){ return (c/100).toFixed(2).replace(".",","); }
+
+/* Divide igualmente; os centavos que sobram vão, um a um, para os primeiros da lista. Soma sempre bate. */
+function splitEqual(total, ids){
+  const n = ids.length, out = {};
+  if(!n) return out;
+  const base = Math.floor(total/n); let r = total - base*n;
+  ids.forEach((id,i)=>{ out[id] = base + (i<r?1:0); });
+  return out;
+}
+function payersOf(e){ return e.payers || {}; }
+
+/* ===================== Cálculos ===================== */
+function compute(){
+  const byId = {}; S.people.forEach(p=>byId[p.id]=p);
+  const R = {}; S.people.forEach(p=>R[p.id]={ paid:0, consumed:0, items:[], payments:[] });
+  let total = 0;
+  for(const e of S.expenses){
+    total += e.total;
+    const shares = splitEqual(e.total, e.parts);
+    for(const id of e.parts){ if(R[id]){ R[id].consumed += shares[id]; R[id].items.push({e, share:shares[id], n:e.parts.length}); } }
+    const pays = payersOf(e);
+    for(const id in pays){ if(R[id]){ R[id].paid += pays[id]; R[id].payments.push({e, amount:pays[id]}); } }
+  }
+  for(const id in R){ R[id].bal = R[id].paid - R[id].consumed; }
+  const transfers = settle(S.people.map(p=>({id:p.id, v:R[p.id].bal})));
+  for(const id in R){ R[id].out = transfers.filter(t=>t.from===id); R[id].in = transfers.filter(t=>t.to===id); }
+  return { byId, R, total, transfers };
+}
+
+/*
+  Fechamento com o MENOR número possível de Pix.
+  Com k pessoas com saldo ≠ 0, o mínimo de transferências é k − g, onde g é o maior
+  número de subgrupos disjuntos cujos saldos somam exatamente zero. Encontramos g por
+  programação dinâmica sobre subconjuntos (exata até 18 pessoas com saldo) e, dentro de
+  cada subgrupo, quitamos do maior devedor para o maior credor (≤ tamanho−1 Pix).
+*/
+function settle(list){
+  const xs = list.filter(b=>b.v!==0);
+  const n = xs.length;
+  if(!n) return [];
+  let groups;
+  if(n <= 18){
+    const N = 1<<n;
+    const sum = new Float64Array(N), dp = new Int8Array(N);
+    for(let m=1;m<N;m++){
+      const low = m & -m, i = 31 - Math.clz32(low);
+      sum[m] = sum[m ^ low] + xs[i].v;
+      let best = 0;
+      for(let j=0;j<n;j++){ const b=1<<j; if(m & b){ const d = dp[m ^ b]; if(d>best) best=d; } }
+      dp[m] = best + (sum[m]===0 ? 1 : 0);
+    }
+    const zeroMasks = [];
+    let m = N-1;
+    while(m){
+      const z = sum[m]===0 ? 1 : 0;
+      if(z) zeroMasks.push(m);
+      let next = -1;
+      for(let j=0;j<n;j++){ const b=1<<j; if((m & b) && dp[m ^ b] === dp[m]-z){ next = m ^ b; break; } }
+      m = next;
+    }
+    groups = [];
+    for(let k=0;k<zeroMasks.length;k++){
+      const g = zeroMasks[k] & ~(zeroMasks[k+1]||0);
+      const members = []; for(let j=0;j<n;j++) if(g & (1<<j)) members.push(xs[j]);
+      if(members.length) groups.push(members);
+    }
+  } else {
+    groups = [xs];
+  }
+  const out = [];
+  for(const g of groups){
+    const deb = g.filter(x=>x.v<0).map(x=>({id:x.id, v:-x.v})).sort((a,b)=>b.v-a.v);
+    const cre = g.filter(x=>x.v>0).map(x=>({id:x.id, v:x.v})).sort((a,b)=>b.v-a.v);
+    let i=0,j=0;
+    while(i<deb.length && j<cre.length){
+      const a = Math.min(deb[i].v, cre[j].v);
+      if(a>0) out.push({from:deb[i].id, to:cre[j].id, amount:a});
+      deb[i].v -= a; cre[j].v -= a;
+      if(deb[i].v===0) i++;
+      if(cre[j].v===0) j++;
+    }
+  }
+  return out;
+}
+
+/* ===================== Utilidades de interface ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function initials(name){ const p = String(name||"?").trim().split(/\s+/); return ((p[0]||"?")[0] + (p.length>1 ? p[p.length-1][0] : "")).toUpperCase(); }
+function avColor(p){ const idx = S.people.findIndex(x=>x.id===p.id); return "var(--av"+((idx<0?0:idx)%8+1)+")"; }
+function av(p, cls){ if(!p) return `<span class="av ${cls||""}">?</span>`; return `<span class="av ${cls||""}" style="--avc:${avColor(p)}" aria-hidden="true">${esc(initials(p.name))}</span>`; }
+function nameOf(id){ const p = S.people.find(x=>x.id===id); return p ? p.name : "(removido)"; }
+function timeOf(ts){ try{ return new Date(ts).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; } }
+function dateOf(ts){ try{ return new Date(ts).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}); }catch(e){ return ""; } }
+function balClass(v){ return v>0?"pos-t":v<0?"neg-t":"muted"; }
+function signed(v){ return (v>0?"+":v<0?"−":"") + brl(Math.abs(v)); }
+let toastTimer;
+function toast(msg){ $("#toastRoot").innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; clearTimeout(toastTimer); toastTimer = setTimeout(()=>$("#toastRoot").innerHTML="", 2400); }
+async function copyText(text, label){
+  try{ await navigator.clipboard.writeText(text); toast(label||"Copiado"); }
+  catch(e){ openCopyFallback(text); }
+}
+function waPhone(p){ if(!p || !p.phone) return ""; let d = String(p.phone).replace(/\D/g,""); if(d.length===10||d.length===11) d = "55"+d; return d; }
+function waLink(text, phone){ return "https://wa.me/" + (phone||"") + "?text=" + encodeURIComponent(text); }
+function payerText(e){
+  const ids = Object.keys(payersOf(e));
+  if(ids.length===1) return nameOf(ids[0]);
+  return ids.map(nameOf).join(" + ");
+}
+function partsText(e){
+  if(e.parts.length === S.people.length && S.people.length>1) return "todos";
+  if(e.parts.length<=3) return e.parts.map(nameOf).join(", ");
+  return e.parts.length + " pessoas";
+}
+
+/* ===================== Roteamento ===================== */
+const VIEWS = ["inicio","gastos","pessoas","fechamento"];
+function current(){ const h = (location.hash||"").replace("#",""); return VIEWS.includes(h)?h:"inicio"; }
+window.addEventListener("hashchange", ()=>{ render(); window.scrollTo(0,0); });
+
+/* ===================== Render ===================== */
+function render(){
+  const active = document.activeElement;
+  const keep = active && active.id && $("#view").contains(active) ? {id:active.id, v:active.value, s:active.selectionStart, e:active.selectionEnd} : null;
+  const C = compute();
+  $("#title").textContent = S.meta.title || "Dia de praia";
+  $("#subtitle").textContent = S.mode==="loading" ? "Carregando…" : `${S.people.length} ${S.people.length===1?"pessoa":"pessoas"} · ${S.expenses.length} ${S.expenses.length===1?"gasto":"gastos"} · ${brl(C.total)}`;
+  const sync = $("#sync");
+  if(S.mode==="db"){ sync.className="sync"; sync.querySelector("span").textContent = "Salvo na nuvem"; }
+  else if(S.mode==="local"){ sync.className="sync local"; sync.querySelector("span").textContent = "Salvo neste aparelho"; }
+  else { sync.className="sync wait"; sync.querySelector("span").textContent = S.slow ? "Sem conexão" : "Conectando"; }
+  const v = current();
+  document.querySelectorAll("nav.tabs a").forEach(a=>a.classList.toggle("on", a.dataset.tab===v));
+  $("#fab").hidden = S.mode==="loading" || S.people.length===0;
+  let html = "";
+  if(S.mode==="loading") html = viewLoading();
+  else if(v==="inicio") html = viewHome(C);
+  else if(v==="gastos") html = viewExpenses(C);
+  else if(v==="pessoas") html = viewPeople(C);
+  else html = viewClose(C);
+  $("#view").innerHTML = html;
+  if(keep){ const el = document.getElementById(keep.id); if(el){ el.value = keep.v; el.focus(); try{ el.setSelectionRange(keep.s, keep.e); }catch(e){} } }
+  if(sheet && sheet.kind==="person") renderPersonSheet(sheet.id);
+  if(sheet && sheet.kind==="close-msgs") renderMsgsSheet();
+}
+
+function viewLoading(){
+  return `<div class="card empty"><h3>Abrindo as contas do grupo…</h3><p>${S.slow ? "Ainda não foi possível falar com o servidor. Os dados aparecem assim que a conexão voltar." : "Buscando participantes e gastos salvos."}</p></div>`;
+}
+
+function emptyPeople(){
+  return `<div class="card empty">
+    <h3>Quem está na praia hoje?</h3>
+    <p>Cadastre o grupo. Depois é só tocar no + sempre que alguém pagar alguma coisa.</p>
+    <form class="addrow" data-form="add-person" style="width:100%;max-width:380px">
+      <input class="input" id="newPersonHome" name="name" placeholder="Nome (ex.: João)" autocomplete="off" maxlength="40">
+      <button class="btn primary" type="submit">Adicionar</button>
+    </form>
+    <button class="linkbtn" data-act="load-example">Ou carregar um exemplo com 6 pessoas para testar</button>
+  </div>`;
+}
+
+function viewHome(C){
+  if(!S.people.length) return emptyPeople();
+  const n = S.people.length;
+  const maxAbs = Math.max(1, ...S.people.map(p=>Math.abs(C.R[p.id].bal)));
+  const bars = S.people.map(p=>{
+    const b = C.R[p.id].bal, w = Math.round(Math.abs(b)/maxAbs*50);
+    return `<button class="bar-row" data-act="open-person" data-id="${p.id}">
+      <span class="bar-name">${av(p,"sm")}<span>${esc(p.name)}</span></span>
+      <span class="track"><span class="fill ${b>=0?"pos":"neg"}" style="width:${w}%"></span></span>
+      <span class="amt num ${balClass(b)}">${signed(b)}</span>
+    </button>`;
+  }).join("");
+  const recent = S.expenses.slice(0,4).map(expenseRow).join("");
+  return `
+  <section class="hero" aria-label="Resumo">
+    <div><div class="label">Total gasto pelo grupo</div><div class="big num">${brl(C.total)}</div></div>
+    <div class="row num">
+      <div><span class="label">Gastos</span><b>${S.expenses.length}</b></div>
+      <div><span class="label">Média por pessoa</span><b>${brl(Math.round(C.total/n))}</b></div>
+      <div><span class="label">Pix no fechamento</span><b>${C.transfers.length}</b></div>
+    </div>
+    <a class="btn close" href="#fechamento">FECHAR CONTAS</a>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div class="section-h"><h2>Saldos agora</h2><span class="note">verde recebe · vermelho paga</span></div>
+    <div class="card bars">${bars}</div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div class="section-h"><h2>Últimos gastos</h2>${S.expenses.length?`<a class="linkbtn" href="#gastos">Ver todos</a>`:""}</div>
+    ${S.expenses.length ? `<div class="card list">${recent}</div>` :
+      `<div class="card empty"><h3>Nenhum gasto ainda</h3><p>Quando alguém pagar a cerveja, a porção ou o guarda-sol, registre aqui.</p><button class="btn primary" data-act="new-expense">Adicionar primeiro gasto</button></div>`}
+  </section>`;
+}
+
+function expenseRow(e){
+  const pays = Object.keys(payersOf(e));
+  const p = S.people.find(x=>x.id===pays[0]);
+  return `<button class="item" data-act="edit-expense" data-id="${e.id}">
+    ${av(p)}
+    <span class="grow"><span class="t">${esc(e.desc)}</span><span class="s">${esc(payerText(e))} pagou · para ${esc(partsText(e))}</span></span>
+    <span class="v num">${brl(e.total)}<small>${e.parts.length>1 ? brl(Math.floor(e.total/e.parts.length))+" cada" : timeOf(e.ts)}</small></span>
+  </button>`;
+}
+
+let filterPerson = "";
+function viewExpenses(C){
+  if(!S.people.length) return emptyPeople();
+  if(!S.expenses.length) return `<div class="card empty"><h3>Nenhum gasto registrado</h3><p>Toque no + para lançar o primeiro. Dá para corrigir ou excluir depois.</p><button class="btn primary" data-act="new-expense">Adicionar gasto</button></div>`;
+  const list = filterPerson ? S.expenses.filter(e=>e.parts.includes(filterPerson) || payersOf(e)[filterPerson]!=null) : S.expenses;
+  // agrupa por dia
+  let html = "", lastDay = "";
+  const groups = [];
+  for(const e of list){ const d = dateOf(e.ts); if(d!==lastDay){ groups.push({d, items:[]}); lastDay=d; } groups[groups.length-1].items.push(e); }
+  for(const g of groups){
+    const sum = g.items.reduce((a,e)=>a+e.total,0);
+    html += `<section style="display:flex;flex-direction:column;gap:8px"><div class="section-h"><span class="label">${esc(g.d)}</span><span class="label num">${brl(sum)}</span></div><div class="card list">${g.items.map(expenseRow).join("")}</div></section>`;
+  }
+  const chips = `<div class="chips"><button class="chip text ${!filterPerson?"on":""}" data-act="filter" data-id="">Todos</button>${S.people.map(p=>`<button class="chip text ${filterPerson===p.id?"on":""}" data-act="filter" data-id="${p.id}">${esc(p.name)}</button>`).join("")}</div>`;
+  return `<div class="section-h"><h2>Histórico</h2><span class="pill-count num">${list.length} · ${brl(list.reduce((a,e)=>a+e.total,0))}</span></div>
+  ${chips}
+  ${list.length ? html : `<div class="card empty"><p>${esc(nameOf(filterPerson))} não pagou nem consumiu nada ainda.</p></div>`}
+  <p class="note">Toque em um gasto para corrigir valor, quem pagou ou quem consumiu. Os saldos se atualizam na hora.</p>`;
+}
+
+function viewPeople(C){
+  const rows = S.people.map(p=>{
+    const r = C.R[p.id];
+    const st = r.bal>0 ? `<span class="state pos num">recebe ${brl(r.bal)}</span>` : r.bal<0 ? `<span class="state neg num">paga ${brl(-r.bal)}</span>` : `<span class="state zero">quite</span>`;
+    return `<button class="pc-row" data-act="open-person" data-id="${p.id}">
+      ${av(p)}
+      <span class="grow"><b>${esc(p.name)}</b><span class="s num">pagou ${brl(r.paid)} · consumiu ${brl(r.consumed)}</span></span>
+      ${st}
+    </button>`;
+  }).join("");
+  return `
+  <div class="section-h"><h2>Participantes</h2><span class="pill-count">${S.people.length}</span></div>
+  <form class="addrow" data-form="add-person">
+    <input class="input" id="newPerson" name="name" placeholder="Adicionar pessoa" autocomplete="off" maxlength="40">
+    <button class="btn primary" type="submit">Adicionar</button>
+  </form>
+  ${S.people.length ? `<div class="card person-card">${rows}</div><p class="note">Toque em uma pessoa para ver o extrato dela, cadastrar a chave Pix e o WhatsApp, ou mandar o acerto individual.</p>` : `<div class="card empty"><h3>Ninguém cadastrado</h3><p>Adicione os nomes acima, um de cada vez.</p><button class="linkbtn" data-act="load-example">Carregar exemplo com 6 pessoas</button></div>`}
+  ${S.mode==="local" ? `<section class="card pad" style="display:flex;flex-direction:column;gap:12px">
+    <h2 style="font-size:1rem">Backup</h2>
+    <p class="note" style="margin:0">Os dados ficam guardados neste celular. Salve um backup antes de trocar de aparelho ou limpar o navegador.</p>
+    <div class="btns">
+      <button class="btn" data-act="export">Salvar backup</button>
+      <label class="btn" for="importFile" style="cursor:pointer">Restaurar backup</label>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </section>` : ""}
+  <section class="card pad" style="display:flex;flex-direction:column;gap:12px">
+    <h2 style="font-size:1rem">Começar de novo</h2>
+    <p class="note" style="margin:0">“Novo dia” apaga os gastos e mantém as pessoas, com Pix e telefone. “Apagar tudo” zera o aplicativo.</p>
+    <div class="btns">
+      <button class="btn danger" data-act="reset-expenses" ${S.expenses.length?"":"disabled"}>Novo dia</button>
+      <button class="btn danger" data-act="reset-all" ${S.people.length||S.expenses.length?"":"disabled"}>Apagar tudo</button>
+    </div>
+  </section>`;
+}
+
+function trKey(t){ return t.from+">"+t.to+":"+t.amount; }
+function viewClose(C){
+  if(!S.people.length) return emptyPeople();
+  if(!S.expenses.length) return `<div class="card empty"><h3>Nada para fechar ainda</h3><p>Registre os gastos do dia. O fechamento aparece aqui automaticamente.</p><button class="btn primary" data-act="new-expense">Adicionar gasto</button></div>`;
+  const debtors = S.people.filter(p=>C.R[p.id].bal<0).length, creditors = S.people.filter(p=>C.R[p.id].bal>0).length;
+  const naive = S.people.reduce((a,p)=>a + S.expenses.filter(e=>e.parts.includes(p.id) && !payersOf(e)[p.id]).length, 0);
+  const doneMap = S.meta.done||{};
+  const doneCount = C.transfers.filter(t=>doneMap[trKey(t)]).length;
+  const trs = C.transfers.map(t=>{
+    const from = C.byId[t.from], to = C.byId[t.to], k = trKey(t), done = !!doneMap[k];
+    return `<div class="tr ${done?"done":""}">
+      <button class="check ${done?"on":""}" data-act="toggle-done" data-k="${esc(k)}" aria-label="Marcar como pago" aria-pressed="${done}">${done?`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>`:""}</button>
+      <div class="who">
+        <span class="arrow">${av(from,"sm")}<b>${esc(from.name)}</b><span class="muted">paga para</span>${av(to,"sm")}<b>${esc(to.name)}</b></span>
+        ${to.pix ? `<span class="s">Pix de ${esc(to.name)}: <b>${esc(to.pix)}</b> <button class="linkbtn" data-act="copy-pix" data-id="${to.id}">copiar</button></span>` : `<span class="s">Sem chave Pix cadastrada · <button class="linkbtn" data-act="open-person" data-id="${to.id}">cadastrar</button></span>`}
+      </div>
+      <div class="val num">${brl(t.amount)}</div>
+    </div>`;
+  }).join("");
+  const sumRows = S.people.map(p=>{
+    const b = C.R[p.id].bal;
+    return `<button class="pc-row" data-act="open-person" data-id="${p.id}">${av(p,"sm")}<span class="grow"><b>${esc(p.name)}</b></span><span class="num ${balClass(b)}" style="font-weight:700">${b>0?"recebe "+brl(b):b<0?"paga "+brl(-b):"quite"}</span></button>`;
+  }).join("");
+  const groupText = msgGroup(C);
+  return `
+  <section class="hero">
+    <div><div class="label">Fechamento de ${esc(S.meta.title||"hoje")}</div><div class="big num">${C.transfers.length} ${C.transfers.length===1?"Pix":"Pix"}</div></div>
+    <div class="row num">
+      <div><span class="label">Total</span><b>${brl(C.total)}</b></div>
+      <div><span class="label">Pagam</span><b>${debtors}</b></div>
+      <div><span class="label">Recebem</span><b>${creditors}</b></div>
+      ${C.transfers.length?`<div><span class="label">Já pagos</span><b>${doneCount}/${C.transfers.length}</b></div>`:""}
+    </div>
+  </section>
+  ${C.transfers.length ? `
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div class="section-h"><h2>Quem transfere para quem</h2></div>
+    <div class="card">${trs}</div>
+    ${naive > C.transfers.length ? `<p class="note compare">Pagando gasto a gasto seriam até ${naive} transferências. O app combinou tudo em ${C.transfers.length}.</p>` : ""}
+  </section>` : `<div class="card empty"><h3>Ninguém deve nada</h3><p>Cada um pagou exatamente o que consumiu.</p></div>`}
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div class="section-h"><h2>Mandar no WhatsApp</h2></div>
+    <div class="card pad" style="display:flex;flex-direction:column;gap:12px">
+      <b>Resumo para o grupo</b>
+      <div class="msgbox">${esc(groupText)}</div>
+      <div class="btns">
+        <a class="btn wa" href="${esc(waLink(groupText))}" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+        <button class="btn" data-act="copy-group">Copiar texto</button>
+      </div>
+    </div>
+    <button class="btn primary" data-act="open-msgs">Mensagens individuais (uma para cada pessoa)</button>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div class="section-h"><h2>Saldo de cada um</h2></div>
+    <div class="card person-card">${sumRows}</div>
+  </section>`;
+}
+
+/* ===================== Mensagens ===================== */
+function msgPerson(p, C){
+  const r = C.R[p.id], t = S.meta.title || "Dia de praia";
+  const L = [];
+  L.push(`*${t}* · acerto de ${p.name}`);
+  L.push("");
+  L.push(`*Você consumiu: ${brl(r.consumed)}*`);
+  if(r.items.length){ r.items.slice().reverse().forEach(it=>{ L.push(`• ${it.e.desc}: ${brl(it.share)}` + (it.n>1 ? ` (${brl(it.e.total)} ÷ ${it.n})` : "")); }); }
+  else L.push("• nada");
+  L.push("");
+  L.push(`*Você pagou: ${brl(r.paid)}*`);
+  if(r.payments.length){ r.payments.slice().reverse().forEach(pm=>{ L.push(`• ${pm.e.desc}: ${brl(pm.amount)}`); }); }
+  else L.push("• nada");
+  L.push("");
+  if(r.bal<0){
+    L.push(`*Saldo: você deve ${brl(-r.bal)}*`);
+    L.push("");
+    L.push("*Faça o Pix assim:*");
+    r.out.forEach(tr=>{ const to = C.byId[tr.to]; L.push(`➡️ ${brl(tr.amount)} para ${to.name}` + (to.pix ? `\n    Pix: ${to.pix}` : "")); });
+  } else if(r.bal>0){
+    L.push(`*Saldo: você tem ${brl(r.bal)} a receber*`);
+    L.push("");
+    L.push("*Vai receber de:*");
+    r.in.forEach(tr=>{ L.push(`⬅️ ${brl(tr.amount)} de ${C.byId[tr.from].name}`); });
+  } else {
+    L.push("*Você está quite.* Não precisa pagar nem receber nada.");
+  }
+  return L.join("\n");
+}
+function msgGroup(C){
+  const t = S.meta.title || "Dia de praia", n = S.people.length;
+  const L = [];
+  L.push(`*${t}* · fechamento das contas`);
+  L.push(`Total: ${brl(C.total)} em ${S.expenses.length} ${S.expenses.length===1?"gasto":"gastos"} (média ${brl(Math.round(C.total/Math.max(1,n)))} por pessoa)`);
+  L.push("");
+  if(C.transfers.length){
+    L.push(`*Transferências (${C.transfers.length} Pix):*`);
+    C.transfers.forEach(tr=>{ const to = C.byId[tr.to]; L.push(`• ${C.byId[tr.from].name} → ${to.name}: *${brl(tr.amount)}*` + (to.pix ? ` (Pix: ${to.pix})` : "")); });
+  } else L.push("Ninguém deve nada. Todo mundo está quite.");
+  L.push("");
+  L.push("*Saldo de cada um:*");
+  S.people.forEach(p=>{ const r = C.R[p.id]; L.push(`• ${p.name}: consumiu ${brl(r.consumed)}, pagou ${brl(r.paid)} → ${r.bal>0?"recebe "+brl(r.bal):r.bal<0?"paga "+brl(-r.bal):"quite"}`); });
+  return L.join("\n");
+}
+
+/* ===================== Painéis (sheets) ===================== */
+let sheet = null;
+function openSheet(kind, html, extra){
+  sheet = Object.assign({kind}, extra||{});
+  $("#sheetRoot").innerHTML = `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody" style="display:flex;flex-direction:column;gap:16px">${html}</div></div></div>`;
+  document.body.style.overflow = "hidden";
+}
+function closeSheet(){ sheet = null; $("#sheetRoot").innerHTML = ""; document.body.style.overflow = ""; }
+function sheetHead(title){ return `<div class="sheet-h"><h2>${esc(title)}</h2><button class="x" data-act="close-sheet" aria-label="Fechar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`; }
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && sheet) closeSheet(); });
+
+function openCopyFallback(text){
+  openSheet("copy", `${sheetHead("Copiar texto")}<p class="note" style="margin:0">Seu navegador não deixou copiar automaticamente. O texto já está selecionado: use Copiar do teclado.</p><textarea class="input" id="copyArea" readonly>${esc(text)}</textarea>`);
+  const ta = $("#copyArea"); ta.focus(); ta.select();
+}
+
+/* ---- Gasto: novo / editar ---- */
+const QUICK = ["Cerveja","Água","Refrigerante","Porção","Almoço","Cadeiras","Guarda-sol","Picolé","Milho","Estacionamento","Gelo","Caipirinha"];
+let draft = null;
+function openExpense(id){
+  const e = id ? S.expenses.find(x=>x.id===id) : null;
+  if(id && !e) return;
+  const pays = e ? payersOf(e) : {};
+  const payIds = Object.keys(pays);
+  draft = {
+    id: e ? e.id : null,
+    desc: e ? e.desc : "",
+    amount: e ? centsToInput(e.total) : "",
+    multi: payIds.length>1,
+    payer: payIds[0] || (S.meta.lastPayer && S.people.some(p=>p.id===S.meta.lastPayer) ? S.meta.lastPayer : (S.people[0]||{}).id),
+    payers: Object.fromEntries(payIds.map(k=>[k, centsToInput(pays[k])])),
+    parts: new Set(e ? e.parts : S.people.map(p=>p.id)),
+    ts: e ? e.ts : null,
+    armed: false
+  };
+  const html = `${sheetHead(e ? "Corrigir gasto" : "Novo gasto")}
+  <form data-form="expense" style="display:flex;flex-direction:column;gap:18px" novalidate>
+    <div class="field">
+      <label class="label" for="exDesc">O que foi</label>
+      <input class="input" id="exDesc" name="desc" value="${esc(draft.desc)}" placeholder="Ex.: porção de camarão" autocomplete="off" maxlength="60">
+      <div class="chips">${QUICK.map(q=>`<button type="button" class="chip text" data-act="quick" data-v="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+    </div>
+    <div class="field">
+      <label class="label" for="exAmount">Valor total</label>
+      <input class="input money num" id="exAmount" name="amount" value="${esc(draft.amount)}" placeholder="R$ 0,00" inputmode="decimal" autocomplete="off">
+    </div>
+    <div class="field">
+      <div class="row-between"><span class="label">Quem pagou</span><button type="button" class="linkbtn" data-act="toggle-multi">${draft.multi?"Só uma pessoa pagou":"Mais de uma pessoa pagou"}</button></div>
+      <div id="payerBox"></div>
+    </div>
+    <div class="field">
+      <div class="row-between"><span class="label">Quem consumiu</span><span class="chips"><button type="button" class="linkbtn" data-act="parts-all">Todos</button><button type="button" class="linkbtn" data-act="parts-none">Nenhum</button></span></div>
+      <div class="chips" id="partsBox"></div>
+    </div>
+    <div id="exPreview"></div>
+    <div id="exErr" class="err" role="alert"></div>
+    <button class="btn primary" type="submit" style="min-height:54px;font-size:1.05rem">${e ? "Salvar correção" : "Adicionar gasto"}</button>
+    ${e ? `<button type="button" class="btn danger" id="exDel" data-act="del-expense">Excluir este gasto</button>` : ""}
+  </form>`;
+  openSheet("expense", html);
+  renderDraftDynamic();
+  if(!e) setTimeout(()=>{ const d = $("#exDesc"); if(d) d.focus(); }, 60);
+}
+function renderDraftDynamic(){
+  const pb = $("#payerBox"); if(!pb) return;
+  if(!draft.multi){
+    pb.innerHTML = `<div class="chips">${S.people.map(p=>`<button type="button" class="chip ${draft.payer===p.id?"on":""}" data-act="pick-payer" data-id="${p.id}" aria-pressed="${draft.payer===p.id}">${av(p,"sm")}${esc(p.name)}</button>`).join("")}</div>`;
+  } else {
+    pb.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${S.people.map(p=>{
+      const on = draft.payers[p.id]!=null;
+      return `<div class="payrow"><button type="button" class="chip ${on?"on":""}" data-act="toggle-payer" data-id="${p.id}" aria-pressed="${on}">${av(p,"sm")}</button><span>${esc(p.name)}</span>
+        <input class="input num" id="pay_${p.id}" data-pay="${p.id}" inputmode="decimal" placeholder="R$ 0,00" value="${on?esc(draft.payers[p.id]):""}" autocomplete="off"></div>`;
+    }).join("")}<button type="button" class="linkbtn" data-act="split-payers" style="align-self:flex-start">Dividir o valor igualmente entre quem pagou</button></div>`;
+  }
+  $("#partsBox").innerHTML = S.people.map(p=>`<button type="button" class="chip ${draft.parts.has(p.id)?"on":""}" data-act="toggle-part" data-id="${p.id}" aria-pressed="${draft.parts.has(p.id)}">${av(p,"sm")}${esc(p.name)}</button>`).join("");
+  renderDraftPreview();
+}
+function orderedParts(){ return S.people.filter(p=>draft.parts.has(p.id)).map(p=>p.id); }
+function renderDraftPreview(){
+  const box = $("#exPreview"); if(!box) return;
+  const total = parseMoney(draft.amount);
+  const parts = orderedParts();
+  if(!(total>0) || !parts.length){ box.innerHTML = ""; return; }
+  const shares = splitEqual(total, parts);
+  const vals = [...new Set(parts.map(id=>shares[id]))].sort((a,b)=>b-a);
+  const shareTxt = vals.length===1 ? `<b>${brl(vals[0])}</b> para cada um` : vals.map(v=>`<b>${brl(v)}</b> × ${parts.filter(id=>shares[id]===v).length}`).join(" e ");
+  let payTxt = "";
+  if(!draft.multi && draft.payer){
+    const others = parts.filter(id=>id!==draft.payer);
+    if(others.length) payTxt = `<br>${others.length===1?esc(nameOf(others[0])):others.length+" pessoas"} ${others.length===1?"fica devendo":"ficam devendo"} para ${esc(nameOf(draft.payer))}.`;
+    else payTxt = `<br>${esc(nameOf(draft.payer))} pagou só a própria parte. Ninguém fica devendo.`;
+  }
+  box.innerHTML = `<div class="preview num">${brl(total)} ÷ ${parts.length} = ${shareTxt}.${payTxt}</div>`;
+}
+async function submitExpense(){
+  const err = $("#exErr");
+  const desc = ($("#exDesc").value||"").trim();
+  const total = parseMoney($("#exAmount").value);
+  const parts = orderedParts();
+  if(!desc){ err.textContent = "Diga o que foi comprado (ex.: cerveja)."; $("#exDesc").focus(); return; }
+  if(!(total>0)){ err.textContent = "Digite um valor maior que zero, por exemplo 90 ou 90,50."; $("#exAmount").focus(); return; }
+  if(!parts.length){ err.textContent = "Escolha pelo menos uma pessoa que consumiu."; return; }
+  let payers = {};
+  if(!draft.multi){
+    if(!draft.payer){ err.textContent = "Escolha quem pagou."; return; }
+    payers[draft.payer] = total;
+  } else {
+    let sum = 0;
+    for(const id of Object.keys(draft.payers)){
+      const c = parseMoney(draft.payers[id]);
+      if(!(c>0)){ err.textContent = `Digite quanto ${nameOf(id)} pagou, ou desmarque essa pessoa.`; return; }
+      payers[id] = c; sum += c;
+    }
+    if(!Object.keys(payers).length){ err.textContent = "Marque quem pagou."; return; }
+    if(sum !== total){ err.textContent = `Os pagamentos somam ${brl(sum)}, mas o total é ${brl(total)}. ${sum<total?"Faltam":"Sobram"} ${brl(Math.abs(total-sum))}.`; return; }
+  }
+  const e = { id: draft.id || uid(), desc, total, payers, parts, ts: draft.ts || Date.now() };
+  const isNew = !draft.id;
+  const btn = document.querySelector('[data-form="expense"] button[type="submit"]'); if(btn) btn.disabled = true;
+  try{
+    await store.putExpense(e);
+    if(isNew && !draft.multi && S.meta.lastPayer !== draft.payer){ store.putMeta(Object.assign({}, S.meta, {lastPayer: draft.payer})).catch(()=>{}); }
+    closeSheet(); toast(isNew ? `${desc}: ${brl(total)} registrado` : "Gasto corrigido");
+  }catch(x){ if(btn) btn.disabled = false; }
+}
+
+/* ---- Pessoa ---- */
+function openPerson(id){ openSheet("person", "", {id}); renderPersonSheet(id); }
+function renderPersonSheet(id){
+  const p = S.people.find(x=>x.id===id);
+  const body = $("#sheetBody"); if(!body) return;
+  if(!p){ closeSheet(); return; }
+  // preserva o que está sendo digitado
+  const act = document.activeElement, keep = act && act.id && body.contains(act) ? {id:act.id, v:act.value} : null;
+  const C = compute(), r = C.R[p.id];
+  const used = S.expenses.filter(e=>e.parts.includes(p.id) || payersOf(e)[p.id]!=null).length;
+  const msg = msgPerson(p, C);
+  const phone = waPhone(p);
+  body.innerHTML = `${sheetHead(p.name)}
+  <div class="row-between" style="justify-content:flex-start">${av(p,"lg")}<div><div class="label">Saldo atual</div><div class="num ${balClass(r.bal)}" style="font-family:var(--display);font-weight:800;font-size:1.6rem">${signed(r.bal)}</div></div></div>
+  <div class="stats num">
+    <div class="stat"><span class="label">Já pagou</span><b>${brl(r.paid)}</b></div>
+    <div class="stat"><span class="label">Consumiu</span><b>${brl(r.consumed)}</b></div>
+    <div class="stat"><span class="label">Deve receber</span><b class="pos-t">${brl(Math.max(0,r.bal))}</b></div>
+    <div class="stat"><span class="label">Precisa pagar</span><b class="neg-t">${brl(Math.max(0,-r.bal))}</b></div>
+  </div>
+  ${r.out.length||r.in.length ? `<div class="card">${r.out.map(t=>`<div class="tr"><span>${av(C.byId[t.to],"sm")}</span><div class="who"><b>Pagar ${esc(C.byId[t.to].name)}</b>${C.byId[t.to].pix?`<span class="s">Pix: ${esc(C.byId[t.to].pix)}</span>`:""}</div><div class="val num neg-t">${brl(t.amount)}</div></div>`).join("")}${r.in.map(t=>`<div class="tr"><span>${av(C.byId[t.from],"sm")}</span><div class="who"><b>Receber de ${esc(C.byId[t.from].name)}</b></div><div class="val num pos-t">${brl(t.amount)}</div></div>`).join("")}</div>` : ""}
+  <section style="display:flex;flex-direction:column;gap:8px">
+    <span class="label">O que consumiu</span>
+    ${r.items.length ? `<div class="card list">${r.items.map(it=>`<button class="item" data-act="edit-expense" data-id="${it.e.id}"><span class="grow"><span class="t">${esc(it.e.desc)}</span><span class="s">${esc(payerText(it.e))} pagou${it.n>1?` · ${brl(it.e.total)} ÷ ${it.n}`:""}</span></span><span class="v num">${brl(it.share)}</span></button>`).join("")}</div>` : `<p class="note" style="margin:0">Nada ainda.</p>`}
+  </section>
+  ${r.payments.length ? `<section style="display:flex;flex-direction:column;gap:8px"><span class="label">O que pagou</span><div class="card list">${r.payments.map(pm=>`<button class="item" data-act="edit-expense" data-id="${pm.e.id}"><span class="grow"><span class="t">${esc(pm.e.desc)}</span><span class="s">para ${esc(partsText(pm.e))}</span></span><span class="v num">${brl(pm.amount)}</span></button>`).join("")}</div></section>` : ""}
+  <section class="card pad" style="display:flex;flex-direction:column;gap:10px">
+    <b>Mensagem para ${esc(p.name)}</b>
+    <div class="msgbox">${esc(msg)}</div>
+    <div class="btns">
+      <a class="btn wa" href="${esc(waLink(msg, phone))}" target="_blank" rel="noopener">${phone?"Enviar para "+esc(p.name):"Enviar no WhatsApp"}</a>
+      <button class="btn" data-act="copy-person" data-id="${p.id}">Copiar</button>
+    </div>
+    ${phone ? "" : `<p class="note" style="margin:0">Cadastre o WhatsApp abaixo para a mensagem já abrir na conversa de ${esc(p.name)}.</p>`}
+  </section>
+  <form data-form="person" data-id="${p.id}" class="card pad" style="display:flex;flex-direction:column;gap:12px">
+    <b>Dados de ${esc(p.name)}</b>
+    <div class="field"><label class="label" for="pName">Nome</label><input class="input" id="pName" name="name" value="${esc(p.name)}" maxlength="40" autocomplete="off"></div>
+    <div class="field"><label class="label" for="pPix">Chave Pix (para receber)</label><input class="input" id="pPix" name="pix" value="${esc(p.pix||"")}" placeholder="CPF, celular, e-mail ou chave aleatória" autocomplete="off" maxlength="80"></div>
+    <div class="field"><label class="label" for="pPhone">WhatsApp</label><input class="input" id="pPhone" name="phone" value="${esc(p.phone||"")}" placeholder="(11) 98888-7777" inputmode="tel" autocomplete="off" maxlength="20"></div>
+    <button class="btn primary" type="submit">Salvar dados</button>
+  </form>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn danger" id="delPerson" data-act="del-person" data-id="${p.id}" ${used?"disabled":""}>Remover ${esc(p.name)} do grupo</button>
+    ${used ? `<p class="note" style="margin:0">${esc(p.name)} aparece em ${used} ${used===1?"gasto":"gastos"}. Corrija ou exclua esses gastos antes de remover.</p>` : ""}
+  </div>`;
+  if(keep){ const el = document.getElementById(keep.id); if(el){ el.value = keep.v; el.focus(); } }
+}
+
+function openMsgs(){ openSheet("close-msgs", ""); renderMsgsSheet(); }
+function renderMsgsSheet(){
+  const body = $("#sheetBody"); if(!body) return;
+  const C = compute();
+  body.innerHTML = `${sheetHead("Mensagens individuais")}
+  <p class="note" style="margin:0">Cada mensagem traz o que a pessoa consumiu, o que pagou e para quem transferir. Com o WhatsApp cadastrado, o botão abre direto a conversa dela.</p>
+  ${S.people.map(p=>{
+    const r = C.R[p.id], msg = msgPerson(p, C), phone = waPhone(p);
+    return `<div class="card pad" style="display:flex;flex-direction:column;gap:10px">
+      <div class="row-between"><span class="bar-name">${av(p,"sm")}<b>${esc(p.name)}</b></span><span class="state ${r.bal>0?"pos":r.bal<0?"neg":"zero"} num">${r.bal>0?"recebe "+brl(r.bal):r.bal<0?"paga "+brl(-r.bal):"quite"}</span></div>
+      <details><summary class="note" style="cursor:pointer">Ver mensagem</summary><div class="msgbox" style="margin-top:8px">${esc(msg)}</div></details>
+      <div class="btns"><a class="btn wa sm" href="${esc(waLink(msg, phone))}" target="_blank" rel="noopener">${phone?"Enviar para "+esc(p.name):"WhatsApp"}</a><button class="btn sm" data-act="copy-person" data-id="${p.id}">Copiar</button></div>
+    </div>`;
+  }).join("")}`;
+}
+
+function openTitle(){
+  openSheet("title", `${sheetHead("Nome do dia")}
+  <form data-form="title" style="display:flex;flex-direction:column;gap:12px">
+    <input class="input" id="tName" name="title" value="${esc(S.meta.title||"")}" maxlength="40" placeholder="Ex.: Praia do Forte 22/11">
+    <p class="note" style="margin:0">Aparece no topo e nas mensagens do WhatsApp.</p>
+    <button class="btn primary" type="submit">Salvar</button>
+  </form>`);
+  setTimeout(()=>{ const t=$("#tName"); if(t){ t.focus(); t.select(); } }, 60);
+}
+
+/* Confirmação em dois toques (o navegador do artifact não mostra confirm()) */
+const armed = {};
+function arm(key, btn, label){
+  if(armed[key] && Date.now()-armed[key] < 4000){ delete armed[key]; return true; }
+  armed[key] = Date.now(); btn.classList.add("armed"); const old = btn.textContent; btn.textContent = label;
+  setTimeout(()=>{ if(armed[key]){ delete armed[key]; btn.classList.remove("armed"); btn.textContent = old; } }, 4000);
+  return false;
+}
+
+/* ===================== Ações ===================== */
+async function addPerson(name){
+  name = (name||"").trim().replace(/\s+/g," ");
+  if(!name) return;
+  if(S.people.some(p=>p.name.toLowerCase()===name.toLowerCase())){ toast(`${name} já está no grupo`); return; }
+  const order = S.people.reduce((m,p)=>Math.max(m,p.order||0),0)+1;
+  await store.putPerson({id:uid(), name, pix:"", phone:"", order});
+  toast(`${name} adicionado`);
+}
+async function loadExample(){
+  const names = ["João","Pedro","Maria","Carlos","Ana","Bia"];
+  const ids = [];
+  for(let i=0;i<names.length;i++){ const id = uid()+i; ids.push(id); await store.putPerson({id, name:names[i], pix:"", phone:"", order:i+1}); }
+  const [jo,pe,ma,ca,an,bi] = ids, now = Date.now();
+  const ex = [
+    {desc:"Cadeiras e guarda-sol (exemplo)", total:9000, payers:{[ca]:9000}, parts:ids},
+    {desc:"Porção de camarão (exemplo)", total:9000, payers:{[jo]:9000}, parts:[jo,pe]},
+    {desc:"Balde de cerveja (exemplo)", total:7200, payers:{[jo]:7200}, parts:[jo,pe,ma,ca]},
+    {desc:"Almoço (exemplo)", total:24000, payers:{[ma]:12000,[an]:12000}, parts:ids},
+    {desc:"Picolés (exemplo)", total:3000, payers:{[bi]:3000}, parts:[an,bi,ma]}
+  ];
+  for(let i=0;i<ex.length;i++){ await store.putExpense(Object.assign({id:uid()+"e"+i, ts:now-(ex.length-i)*600000}, ex[i])); }
+  toast("Exemplo carregado. Apague em Pessoas → Apagar tudo.");
+}
+async function resetExpenses(){
+  const ids = S.expenses.map(e=>e.id);
+  if(db){ for(const id of ids){ await dbWrite(()=>db.doc("expenses/"+id).delete()); } await store.putMeta(Object.assign({}, S.meta, {done:{}})); }
+  else { S.expenses = []; S.meta.done = {}; saveLocal(); render(); }
+  toast("Gastos apagados. Bom novo dia!");
+}
+async function resetAll(){
+  if(db){
+    for(const e of S.expenses.slice()) await dbWrite(()=>db.doc("expenses/"+e.id).delete());
+    for(const p of S.people.slice()) await dbWrite(()=>db.doc("people/"+p.id).delete());
+    await store.putMeta({title:"Dia de praia", done:{}});
+  } else { S.people=[]; S.expenses=[]; S.meta={title:"Dia de praia",done:{}}; saveLocal(); render(); }
+  toast("Tudo apagado");
+}
+
+document.addEventListener("click", async ev=>{
+  const t = ev.target.closest("[data-act]");
+  if(!t) return;
+  const act = t.dataset.act, id = t.dataset.id;
+  if(act==="scrim"){ if(ev.target===t) closeSheet(); return; }
+  switch(act){
+    case "close-sheet": closeSheet(); break;
+    case "new-expense": if(!S.people.length){ location.hash="#pessoas"; toast("Cadastre as pessoas primeiro"); } else openExpense(null); break;
+    case "edit-expense": openExpense(id); break;
+    case "open-person": openPerson(id); break;
+    case "edit-title": openTitle(); break;
+    case "open-msgs": openMsgs(); break;
+    case "filter": filterPerson = id||""; render(); break;
+    case "load-example": t.disabled = true; try{ await loadExample(); }catch(e){} break;
+    case "quick": { const d = $("#exDesc"); d.value = t.dataset.v; draft.desc = d.value; $("#exAmount").focus(); break; }
+    case "pick-payer": draft.payer = id; renderDraftDynamic(); break;
+    case "toggle-multi":
+      draft.multi = !draft.multi;
+      if(draft.multi && !Object.keys(draft.payers).length && draft.payer){ draft.payers = {[draft.payer]: draft.amount||""}; }
+      if(!draft.multi){ const k = Object.keys(draft.payers); if(k.length) draft.payer = k[0]; }
+      t.textContent = draft.multi ? "Só uma pessoa pagou" : "Mais de uma pessoa pagou";
+      renderDraftDynamic(); break;
+    case "toggle-payer": if(draft.payers[id]!=null) delete draft.payers[id]; else draft.payers[id] = ""; renderDraftDynamic(); break;
+    case "split-payers": {
+      const total = parseMoney(draft.amount); const ids = S.people.filter(p=>draft.payers[p.id]!=null).map(p=>p.id);
+      if(!(total>0) || !ids.length){ $("#exErr").textContent = "Digite o valor total e marque quem pagou."; break; }
+      const sh = splitEqual(total, ids); ids.forEach(k=>draft.payers[k]=centsToInput(sh[k])); renderDraftDynamic(); break;
+    }
+    case "toggle-part": draft.parts.has(id) ? draft.parts.delete(id) : draft.parts.add(id); renderDraftDynamic(); break;
+    case "parts-all": draft.parts = new Set(S.people.map(p=>p.id)); renderDraftDynamic(); break;
+    case "parts-none": draft.parts = new Set(); renderDraftDynamic(); break;
+    case "del-expense":
+      if(arm("delx", t, "Toque de novo para excluir")){ const d = draft.id; try{ await store.delExpense(d); closeSheet(); toast("Gasto excluído"); }catch(e){} }
+      break;
+    case "del-person":
+      if(arm("delp"+id, t, "Toque de novo para remover")){ const nm = nameOf(id); try{ await store.delPerson(id); closeSheet(); toast(`${nm} removido`); }catch(e){} }
+      break;
+    case "reset-expenses": if(arm("rx", t, "Toque de novo: apagar os gastos")){ t.disabled = true; try{ await resetExpenses(); }catch(e){} } break;
+    case "reset-all": if(arm("ra", t, "Toque de novo: apagar tudo")){ t.disabled = true; try{ await resetAll(); }catch(e){} } break;
+    case "toggle-done": {
+      const k = t.dataset.k, done = Object.assign({}, S.meta.done||{});
+      if(done[k]) delete done[k]; else done[k] = true;
+      const C = compute(); const valid = new Set(C.transfers.map(trKey));
+      for(const key of Object.keys(done)) if(!valid.has(key)) delete done[key];
+      try{ await store.putMeta(Object.assign({}, S.meta, {done})); }catch(e){}
+      break;
+    }
+    case "export": {
+      const json = JSON.stringify({app:"racha-da-praia", v:1, savedAt:new Date().toISOString(), people:S.people, expenses:S.expenses, meta:S.meta}, null, 1);
+      const name = "racha-backup-" + new Date().toISOString().slice(0,10) + ".json";
+      const file = new File([json], name, {type:"application/json"});
+      try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:name}); break; } }catch(e){ if(e && e.name==="AbortError") break; }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      toast("Backup salvo");
+      break;
+    }
+    case "copy-group": copyText(msgGroup(compute()), "Resumo copiado"); break;
+    case "copy-person": { const p = S.people.find(x=>x.id===id); if(p) copyText(msgPerson(p, compute()), `Mensagem de ${p.name} copiada`); break; }
+    case "copy-pix": { const p = S.people.find(x=>x.id===id); if(p && p.pix) copyText(p.pix, `Pix de ${p.name} copiado`); break; }
+  }
+});
+
+document.addEventListener("change", ev=>{
+  const el = ev.target;
+  if(el.id!=="importFile" || !el.files || !el.files[0]) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const d = JSON.parse(fr.result);
+      if(!d || d.app!=="racha-da-praia" || !Array.isArray(d.people) || !Array.isArray(d.expenses)) throw 0;
+      S.people = d.people; S.expenses = d.expenses; S.meta = Object.assign({title:"Dia de praia",done:{}}, d.meta||{});
+      sortAll(); saveLocal(); render(); toast(`Backup restaurado: ${S.people.length} pessoas, ${S.expenses.length} gastos`);
+    }catch(e){ toast("Esse arquivo não é um backup do Racha da Praia."); }
+  };
+  fr.readAsText(el.files[0]);
+  el.value = "";
+});
+
+document.addEventListener("input", ev=>{
+  const el = ev.target;
+  if(!draft || !sheet || sheet.kind!=="expense") return;
+  if(el.id==="exDesc"){ draft.desc = el.value; }
+  else if(el.id==="exAmount"){
+    draft.amount = el.value;
+    if(draft.multi){ const k = Object.keys(draft.payers); if(k.length===1){ draft.payers[k[0]] = el.value; const i = $("#pay_"+k[0]); if(i) i.value = el.value; } }
+    renderDraftPreview();
+  }
+  else if(el.dataset.pay){ draft.payers[el.dataset.pay] = el.value; const chip = el.parentElement.querySelector(".chip"); if(chip && !chip.classList.contains("on")){ chip.classList.add("on"); } }
+  $("#exErr").textContent = "";
+});
+
+document.addEventListener("submit", async ev=>{
+  const f = ev.target; const kind = f.dataset.form; if(!kind) return;
+  ev.preventDefault();
+  if(kind==="add-person"){ const inp = f.querySelector("input"); const v = inp.value; inp.value = ""; try{ await addPerson(v); }catch(e){} const again = document.getElementById(inp.id); if(again) again.focus(); }
+  else if(kind==="expense"){ submitExpense(); }
+  else if(kind==="person"){
+    const p = S.people.find(x=>x.id===f.dataset.id); if(!p) return;
+    const name = f.name.value.trim().replace(/\s+/g," ");
+    if(!name){ toast("O nome não pode ficar vazio"); return; }
+    if(S.people.some(x=>x.id!==p.id && x.name.toLowerCase()===name.toLowerCase())){ toast(`Já existe alguém chamado ${name}`); return; }
+    try{ await store.putPerson(Object.assign({}, p, {name, pix:f.pix.value.trim(), phone:f.phone.value.trim()})); toast("Dados salvos"); document.activeElement && document.activeElement.blur(); }catch(e){}
+  }
+  else if(kind==="title"){
+    const title = f.title.value.trim() || "Dia de praia";
+    try{ await store.putMeta(Object.assign({}, S.meta, {title})); closeSheet(); }catch(e){}
+  }
+});
+
+/* ===================== Inicialização ===================== */
+function startLocal(){ S.mode = "local"; loadLocal(); sortAll(); render(); }
+
+async function start(){
+  render();
+  if(!(window.claude && typeof window.claude.use === "function")){ startLocal(); return; }
+  let handle = null;
+  try{ handle = await window.claude.use("db"); }catch(e){ handle = null; }
+  if(!handle){ startLocal(); return; }
+  db = handle;
+  const slowTimer = setTimeout(()=>{ S.slow = true; render(); }, 10000);
+  const ready = ()=>{ if(S.loaded.people && S.loaded.expenses && S.loaded.meta){ if(S.mode!=="db"){ S.mode = "db"; } } };
+  const fail = e=>{ clearTimeout(slowTimer); if(S.mode==="loading"){ db = null; startLocal(); toast("Sem acesso à nuvem. Salvando só neste aparelho."); } };
+  db.collection("people").onSnapshot(s=>{
+    S.people = s.docs.map(d=>Object.assign({}, d.data(), {id:d.id})); sortAll();
+    S.loaded.people = true; if(!s.metadata.fromCache) clearTimeout(slowTimer); ready(); render();
+  }, fail);
+  db.collection("expenses").onSnapshot(s=>{
+    S.expenses = s.docs.map(d=>Object.assign({}, d.data(), {id:d.id})); sortAll();
+    S.loaded.expenses = true; ready(); render();
+  }, fail);
+  db.doc("meta/main").onSnapshot(s=>{
+    S.meta = Object.assign({title:"Dia de praia", done:{}}, s.exists ? s.data() : {});
+    S.loaded.meta = true; ready(); render();
+  }, fail);
+}
+start();
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+}
+</script>
+</body>
+</html>
